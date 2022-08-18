@@ -18,7 +18,7 @@ def email_user(email, html):
         
         msg = MIMEMultipart("alternative")
         msg['Subject'] = 'Secret Share Invitation'
-        msg['From'] ='terrywmartin@gmail.com'
+        msg['From'] =str(os.getenv('FROM_EMAIL'))
         msg['To'] = email
        
         part = MIMEText(html, 'html')
@@ -29,7 +29,7 @@ def email_user(email, html):
             smtp = smtplib.SMTP('smtp.gmail.com', 587)
             smtp.starttls()
             smtp.login(email_username, email_password)
-            smtp.sendmail('terrywmartin@gmail.com', email, msg.as_string())
+            smtp.sendmail(str(os.getenv('FROM_EMAIL')), email, msg.as_string())
             #smtp.send_message(msg)
             smtp.quit()
             success['result'] = 1
