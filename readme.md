@@ -1,5 +1,17 @@
 #passwordShare
 
+TODO:
+
+ - Add functionality:
+     - User registration
+     - Implement password reset
+ - Add error handling
+ - Add comments
+ - Add Tests
+ - Refactor code as I learn new techniques
+ - Ready for deployment
+     - Add support for hosting files on Amazon S3 bucket
+
 I got the idea for this project from my day job.  I saw the company that just acquired us had this simple webapp that let you share passwords with users.  It would encrypt the password and generate a link to share.  The link would expire after a set time.  Since I'm still fairly new to Django, I wondered if I could recreate this.  This is my attempt.
 
 The functionality is simple.  You enter some text in the text box, set the time to live (in clicks), and encrypt.  You can also email it from the app. Once the user receives the email, the user was the set amount of times they can access the secret before it is deleted from the database.  The secret is stored encrypted in the database.
