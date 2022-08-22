@@ -14,6 +14,9 @@ from pathlib import Path
 import os
 import dotenv
 
+from immudb import ImmudbClient
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 dotenv.read_dotenv(os.path.join(BASE_DIR, ".env"),override=True)
@@ -51,6 +54,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
     'encryptedSecrets.apps.EncryptedsecretsConfig',
+    'log.apps.LogConfig'
 
 ]
 
@@ -91,6 +95,12 @@ WSGI_APPLICATION = 'passwordShare.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+#immudb_url = str(os.getenv('IMMUDB_HOST')) + ":" + str(os.getenv('IMMUDB_PORT'))
+#DB = ImmudbClient(immudb_url)
+#DB.login(os.getenv('IMMUDB_USERNAME'), str(os.getenv('IMMUDB_PASSWORD')))
+#DB.useDatabase(str(os.getenv('IMMUDB_DB')))
+
+
 DATABASES = {
    'default': {
           'ENGINE': 'django.db.backends.postgresql',
@@ -99,7 +109,18 @@ DATABASES = {
           'PASSWORD': str(os.getenv('DB_PASSWORD')),
           'HOST': str(os.getenv('DB_HOST')),
           'PORT': os.getenv('DB_PORT'),
-      }
+      },
+    'logs': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': str(os.getenv('IMMUDB_DB')),
+        'USER': str(os.getenv('IMMUDB_USERNAME')),
+        'PASSWORD': str(os.getenv('IMMUDB_PASSWORD')),
+        'HOST': str(os.getenv('IMMUDB_HOST')),
+        'PORT': os.getenv('IMMUDB_PORT'),
+        'OPTIONS': {
+            'sslmode': 'allow'
+        }
+    }
 }
 
 

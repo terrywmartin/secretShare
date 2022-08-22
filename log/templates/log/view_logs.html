@@ -1,0 +1,68 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+
+<div class="col mt-5">
+  <div class="border p-3">
+      <div class="input-group">
+        <input id="search" class="form-control" type="search" 
+            name="search" placeholder="Begin Typing To Search Logs..." 
+            hx-post="{% url 'logs:search_logs' %}?page={{page_obj.number}}&order_by={{order_by}}&sort={{sort}}" 
+            hx-trigger="keyup changed delay:500ms, search" 
+            hx-target="#logTable" 
+            hx-indicator=".htmx-indicator">
+      </div>
+                    
+        <span class="htmx-indicator"> 
+          Searching... 
+        </span> 
+      <div class="table-responsive-md ">
+        <table class="table table-striped table-hover align-middle table-list-search">
+          <thead>
+            <tr>
+              <th>
+                Name &nbsp;<a href="?order_by=name"><i class="fas fa-angle-up"></i></a>&nbsp;<a href="?order_by=name&sort=desc"><i class="fas fa-angle-down"></i></a>
+              </th>
+              <th>
+                IP
+              </th>
+              <th >
+                Accessed&nbsp;<a href="?order_by=checked_in"><i class="fas fa-angle-up"></i></a>&nbsp;<a href="?order_by=checked_in&sort=desc"><i class="fas fa-angle-down"></i></a>
+              </th>
+              <th>
+                Message
+              </th>
+			</tr>
+          </thead>
+          <tbody id="logTable"  hx-target="closest tr" hx-swap="outerHTML swap:1s">
+                {% include 'log/partials/log_list.html' %} 
+          </tbody>
+        </table>
+	      </div>
+
+        <nav aria-label="Page navigation example">
+        
+  <ul class="pagination">
+      
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+     {% endif %}
+     {% if page_obj.has_next %}
+    <li>
+      <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+        
+    
+  </div>
+</div>
+
+{% endblock %}

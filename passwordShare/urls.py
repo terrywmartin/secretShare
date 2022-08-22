@@ -22,5 +22,6 @@ urlpatterns = [
     path('', include('core.urls', namespace='core')),
     path('', include('users.urls', namespace='users')),
     path('', include('encryptedSecrets.urls', namespace='secrets')),
+    path('', include('log.urls', namespace='logs')),
 
 ]

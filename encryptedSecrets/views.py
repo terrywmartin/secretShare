@@ -6,10 +6,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 
+from datetime import datetime
+
 from .forms import SharedSecretForm
 from .models import SharedSecret
 from users.utils import email_user
 from users.models import User
+from log.models import Log
+from log.utils import get_client_ip
+
 
 # Create your views here.
 class SecretsAddSecret(LoginRequiredMixin,View):
@@ -45,13 +50,21 @@ class SecretsViewSecret(View):
         msg = ''
     
         if not request.user.is_authenticated:
+            
             accessed += 1
             if sharedsecret.ttl - accessed <= 0:
                 sharedsecret.delete()
                 msg = 'The secret has been deleted'
+                message = msg
             else:
                 sharedsecret.accessed = accessed
                 sharedsecret.save(update_fields=['accessed'])
+                message = 'Accessed secret: ' +  str(sharedsecret.ttl - accessed) + ' clicks left.'
+                name = sharedsecret.name
+            log = Log(name=name,ip=get_client_ip(request),message=message,owner=sharedsecret.owner.id)
+            log.save_log()
+           
+            #add_log(log)
         
         if request.method == 'POST':
             
@@ -120,6 +133,7 @@ class SecretsViewSecrets(LoginRequiredMixin, View):
         user = User.objects.get(id=pk)
         
         secrets = user.sharedsecret_set.all()
+
         context = {
             'secrets': secrets,
             'action': {

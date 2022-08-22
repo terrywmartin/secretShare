@@ -21,6 +21,12 @@
           <a class="nav-link {% if request.get_full_path == users_url %} active {% endif%}" {% if request.get_full_path == users_url %} aria-current="page"  {% endif %} href="{% url 'users:users' %}">Users</a></li>
       </li>
       {% endif %}
+      {% if user.is_authenticated %}
+      {% url 'logs:view_logs' as logs_url %}
+      <li class ="nav-item">
+          <a class="nav-link {% if request.get_full_path == logs_url %} active {% endif%}" {% if request.get_full_path == logs_url %} aria-current="page"  {% endif %} href="{% url 'logs:logs' %}">Logs</a></li>
+      </li>
+      {% endif %}
 
     </ul>
     
