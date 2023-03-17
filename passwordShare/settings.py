@@ -14,7 +14,6 @@ from pathlib import Path
 import os
 import dotenv
 
-from immudb import ImmudbClient
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -41,6 +40,10 @@ APP_NAME = "Secret Share"
 
 APP_URL = "sharedsecret.local:8000"
 
+# Set session params
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 15 * 60
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -54,7 +57,6 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
     'encryptedSecrets.apps.EncryptedsecretsConfig',
-    'log.apps.LogConfig'
 
 ]
 
@@ -110,17 +112,6 @@ DATABASES = {
           'HOST': str(os.getenv('DB_HOST')),
           'PORT': os.getenv('DB_PORT'),
       },
-    'logs': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': str(os.getenv('IMMUDB_DB')),
-        'USER': str(os.getenv('IMMUDB_USERNAME')),
-        'PASSWORD': str(os.getenv('IMMUDB_PASSWORD')),
-        'HOST': str(os.getenv('IMMUDB_HOST')),
-        'PORT': os.getenv('IMMUDB_PORT'),
-        'OPTIONS': {
-            'sslmode': 'allow'
-        }
-    }
 }
 
 

@@ -12,8 +12,6 @@ from .forms import SharedSecretForm
 from .models import SharedSecret
 from users.utils import email_user
 from users.models import User
-from log.models import Log
-from log.utils import get_client_ip
 
 
 # Create your views here.
@@ -61,11 +59,7 @@ class SecretsViewSecret(View):
                 sharedsecret.save(update_fields=['accessed'])
                 message = 'Accessed secret: ' +  str(sharedsecret.ttl - accessed) + ' clicks left.'
                 name = sharedsecret.name
-            log = Log(name=name,ip=get_client_ip(request),message=message,owner=sharedsecret.owner.id)
-            log.save_log()
-           
-            #add_log(log)
-        
+            
         if request.method == 'POST':
             
             if request.user.is_authenticated:
