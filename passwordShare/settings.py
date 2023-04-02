@@ -34,7 +34,7 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv('DEBUG')) == 1
 
-ALLOWED_HOSTS = [ '.sharedsecret.local', '127.0.0.1' ]
+ALLOWED_HOSTS = [ '.sharedsecret.local', '127.0.0.1', 'localhost' ]
 
 APP_NAME = "Secret Share"
 

@@ -147,7 +147,7 @@ class UsersCreateUser(LoginRequiredMixin,View):
             
         url = 'http://127.0.0.1:8000/users/create-password/' + str(uuid_str) + '?email=' + escape(email) + '&name=' + escape(name)
         html = """\
-        Congratulations, """ + name + """!   You're account has been created.  Add your favorite whiskeys to you database, create lists to share with friends and track prices at your favorite stores.
+        Congratulations, """ + name + """!   You're account has been created.  Now create some encrtyped secrets to share!
 
         Please click the link below to activate your account and create a password.
 
@@ -295,7 +295,7 @@ class UsersInviteUser(LoginRequiredMixin,View):
             
         url = 'http://127.0.0.1:8000/users/create-password/' + str(uuid_str) + '?email=' + escape(email) + '&name=' + escape(name)+ '&last_name=' + escape(last_name)
         html = """\
-        Congratulations, """ + name + """!   You've been invited to join the Whiskey List!  Add your favorite whiskeys to you database, create lists to share with friends and track prices at your favorite stores.
+        Congratulations, """ + name + """!   You've been invited to join Secret Share!  Create encrypted secrets to share.
 
         Please click the link below to activate your account and create a password.
 

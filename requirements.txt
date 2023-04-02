@@ -11,10 +11,11 @@ django-crispy-forms==1.14.0
 django-cryptography==1.1
 django-dotenv==1.4.2
 django-jazzmin==2.5.0
+gunicorn
 wheel
 Pillow
 protobuf==3.20.1
-psycopg2
+psycopg2-binary
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.21
