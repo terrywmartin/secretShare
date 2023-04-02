@@ -19,7 +19,33 @@ Note:  I'm still new to Django so the coding can be a bit crude as I'm learning.
 
 This project uses Django, Bootstrap and HTMX.
 
-To run the app:
+Run the app with Docker:
+
+```
+docker compose up -d --build
+```
+
+Make and apply migrations:
+
+```
+docker compose run app python3 manage.py makemigrations
+```
+
+then
+
+```
+docker compose run app python3 manage.py migrate
+```
+
+You'll need a superuser to login.  I haven't implemented a registration since testing is currently by invite only.
+
+```
+docker compose run app python3 manage.py createsuperuser
+```
+
+
+***Outdated.  Use docker to run the project***
+~~~To run the app:~~~
 
 Create your virtual environment (optional but recommended):
 
