@@ -34,8 +34,8 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv('DEBUG')) == 1
 
-ALLOWED_HOSTS = [ '.sharedsecret.local', '127.0.0.1', 'localhost' ]
-
+ALLOWED_HOSTS = [ '.sharedsecret.local', '127.0.0.1', 'localhost', 'passwordshare' ]
+CSRF_TRUSTED_ORIGINS = [ 'http://passwordshare', 'http://www.passwordshare', 'http://localhost:1337', 'http://passwordshare:1337']
 APP_NAME = "Secret Share"
 
 APP_URL = "sharedsecret.local:8000"

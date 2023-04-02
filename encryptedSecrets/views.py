@@ -24,7 +24,7 @@ class SecretsAddSecret(LoginRequiredMixin,View):
             'secret': '',
             'next': 'secrets:secrets',
             'form': form,
-            'settings': settings
+            'usersettings': settings
         }
        
         return render(request, 'encryptedSecrets/add_secret.html', context)

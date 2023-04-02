@@ -27,15 +27,25 @@ services:
       - APP_NAME=${APP_NAME}
     env_file:
       - ./.env
-    command: python manage.py runserver 0.0.0.0:8000
+    command: ./entrypoint.sh #gunicorn core.wsgi:application --bind :8000 #python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./passwordShare:/passwordShare
-    ports:
-      - 8000:8000
-    restart: always
+      - static_volumes:/staticfiles
+    expose:
+      - 8000
+    restart: on-failure
     depends_on:
       - db
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    volumes:
+      - static_volumes:/staticfiles
+    depends_on:
+      - app
 volumes:
   postgres_data:
+  static_volumes:
   
   
