@@ -1,18 +1,52 @@
 import os
-import smtplib
+#import smtplib
 import random
 import array
     
+from django.core.mail import EmailMessage, get_connection
+from django.conf import settings
 from django.utils.html import escape
-from email.message import EmailMessage
-from email.headerregistry import Address
-from email import encoders
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+#from email.message import EmailMessage
+#from email.headerregistry import Address
+#from email import encoders
+#from email.mime.base import MIMEBase
+#from email.mime.text import MIMEText
+#from email.mime.multipart import MIMEMultipart
 
+def get_email_connection():
+ use_tls = True
+ use_ssl = False
+ fail_silently=False
+ connection = get_connection(host=settings.EMAIL_HOST, 
+                        port=settings.EMAIL_PORT, 
+                        username=settings.EMAIL_HOST_USER, 
+                        password=settings.EMAIL_HOST_PASSWORD, 
+                        use_tls=use_tls,
+                        use_ssl=use_ssl,
+            fail_silently=fail_silently)
+ return connection
 
-def email_user(email, html):
+def email_user(email_address, html):
+    #email_username = str(os.getenv('EMAIL_USERNAME'))
+    #email_password = str(os.getenv('EMAIL_PASSWORD'))
+    from_email = str(os.getenv('FROM_EMAIL'))
+    
+    success = { 'result': 0, 'message': ''}
+    try:
+            #connection = get_email_connection()
+            email = EmailMessage('Secret Share Invitation',html, from_email, [email_address]) #,connection=connection)
+            email.content_subtype = 'html'
+            resp = email.send(fail_silently=False)
+
+            success['message']=resp
+
+    except Exception as ex:
+            success['result'] = 0
+            success['message'] = ex 
+            print(ex)
+    return success
+""" 
+def email_user_old(email, html):
         email_username = str(os.getenv('EMAIL_USERNAME'))
         email_password = str(os.getenv('EMAIL_PASSWORD'))
         
@@ -39,7 +73,7 @@ def email_user(email, html):
             success['message'] = ex
             print(ex)
         return success
-
+ """
 def generate_password():
     
     # maximum length of password needed

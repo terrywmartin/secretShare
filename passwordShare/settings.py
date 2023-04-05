@@ -34,8 +34,11 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv('DEBUG')) == 1
 
-ALLOWED_HOSTS = [ '.sharedsecret.local', '127.0.0.1', 'localhost', 'passwordshare' ]
-CSRF_TRUSTED_ORIGINS = [ 'http://passwordshare', 'http://www.passwordshare', 'http://localhost:1337', 'http://passwordshare:1337']
+ALLOWED_HOSTS = [ '.sharedsecret.local', '127.0.0.1', 'localhost', 'passwordshare', 'passwordshare.local' ]
+CSRF_TRUSTED_ORIGINS = [ 'http://passwordshare', 'http://www.passwordshare', 'http://localhost:1337', 'http://passwordshare:1337', 'https://passwordshare', 'https://passwordshare.local']
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 APP_NAME = "Secret Share"
 
 APP_URL = "sharedsecret.local:8000"
@@ -114,7 +117,13 @@ DATABASES = {
       },
 }
 
-
+EMAIL_BACKEND= str(os.getenv('EMAIL_BACKEND'))
+EMAIL_HOST= str(os.getenv('EMAIL_HOST'))
+EMAIL_PORT= int(os.getenv('EMAIL_PORT'))
+EMAIL_HOST_USER= str(os.getenv('EMAIL_USERNAME'))
+EMAIL_HOST_PASSWORD= str(os.getenv('EMAIL_PASSWORD'))
+EMAIL_USE_TLS= True
+EMAIL_USE_SSL= False
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 

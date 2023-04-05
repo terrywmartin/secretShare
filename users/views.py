@@ -1,24 +1,24 @@
 from django.conf import settings
 from django.http import QueryDict
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, reverse
 from django.views import View
 from django.contrib import messages
 from django.utils.html import escape
 from django.contrib.auth.hashers import make_password
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 import uuid
 from datetime import datetime, timedelta
 
 from users.models import PasswordToken, UserProfile, UserSetting, User
 from users.utils import email_user
-
+from users.mixin import AccessMixin
 
 
 # Create your views here.
-class UsersViewAll(LoginRequiredMixin,View):
+class UsersViewAll(AccessMixin,View):
     def get(self, request):
         users = list(User.objects.values('id','username', 'email', 'is_staff','first_name'))
         
@@ -35,7 +35,7 @@ class UsersViewAll(LoginRequiredMixin,View):
         }
         return render(request, 'users/users.html', context)
 
-class UsersViewUser(LoginRequiredMixin,View):
+class UsersViewUser(AccessMixin,View):
     def get(self, request, pk):
         try:
             user = User.objects.values('id','username', 'email', 'is_staff','first_name','last_name','is_active').get(id=pk)
@@ -51,7 +51,7 @@ class UsersViewUser(LoginRequiredMixin,View):
         }
         return render(request, 'users/edit-user.html', context)
 
-class UsersEditUser(LoginRequiredMixin,View):
+class UsersEditUser(AccessMixin,View):
 
     def get(self,request, pk):        
         try:
@@ -95,7 +95,7 @@ class UsersEditUser(LoginRequiredMixin,View):
         user.save()
         return redirect('users:users')
 
-class UsersDeleteUser(LoginRequiredMixin,View) :
+class UsersDeleteUser(AccessMixin,View) :
     def delete(self,request, pk):     
         try:
             user = User.objects.filter(id=pk).delete()
@@ -118,7 +118,7 @@ class UsersDeleteUser(LoginRequiredMixin,View) :
         }
         return render(request, 'users/partials/list-users.html', context)
     
-class UsersCreateUser(LoginRequiredMixin,View):
+class UsersCreateUser(AccessMixin,View):
     def get(self,request):
         context = {
            'next': 'users:users'
@@ -153,10 +153,10 @@ class UsersCreateUser(LoginRequiredMixin,View):
 
         <a href=""" + url + """ >Activate your account.</a>
         """
-        response = email_user(email, html)
+        #response = email_user(email, html)
 
-        if response['result'] == 0:
-            messages.error('Error sending email: ' + str(response['message']))
+        #if response['result'] == 0:
+        #    messages.error('Error sending email: ' + str(response['message']))
 
         return redirect('users:users')
 
@@ -166,11 +166,11 @@ class UsersResetPassword(View):
         
         if user == None:
             messages.error('User not found')
-            redirect('users:users')
+            redirect('core:index')
 
         context = {
             'user': user,
-           'next': 'users:users'
+           'next': 'core:index'
         }
         return render(request, 'users/reset_password.html', context)
 
@@ -179,7 +179,7 @@ class UsersResetPassword(View):
         
         if user == None:
             messages.error('User not found')
-            redirect('users:users')
+            redirect('core:index')
         name = user.first_name
         email = user.email
         user.password_expired = True
@@ -198,7 +198,7 @@ class UsersResetPassword(View):
         if response['result'] == 0:
             messages.error('Error sending email: ' + str(response['message']))
 
-        return redirect('users:users')
+        return redirect('core:index')
     
 class UsersCreatePassword(View):
     def get(self,request, uuid):
@@ -251,10 +251,10 @@ class UsersCreatePassword(View):
             user = User(username=email,first_name=name,last_name=last_name, email=email,password=password,is_staff=is_staff)
             full_name = name + ' ' + last_name
             user.save()
-            profile = UserProfile.objects.create(user=user,name=full_name,email=email)
-            profile.save()
-            user_settings = UserSetting(ttl=1,profile=profile)
-            user_settings.save()
+            #profile = UserProfile.objects.create(user=user,name=full_name,email=email)
+            #profile.save()
+            #user_settings = UserSetting(ttl=1,profile=profile)
+            #user_settings.save()
         except Exception as err:
             print(err)
             msg = err
@@ -263,7 +263,7 @@ class UsersCreatePassword(View):
         password_token.delete()
         return redirect('core:index')
 
-class UsersInviteUser(LoginRequiredMixin,View):
+class UsersInviteUser(AccessMixin,View):
     def get(self,request):
         context = {
            'next': 'users:users'
@@ -301,14 +301,15 @@ class UsersInviteUser(LoginRequiredMixin,View):
 
         <a href=""" + url + """ >Activate your account.</a>
         """
-        response = email_user(email, html)
+        #response = email_user(email, html)
 
-        if response['result'] == 0:
-            messages.error('Error sending email: ' + str(response['message']))
+        #if response['result'] == 0:
+        #    messages.error(request, 'Error sending email: ' + str(response['message']))
+            #messages.error(request, 'Error sending email: ' + str(response['smtp']))
             
         return redirect('users:users')
 
-class ProfileViewProfile(LoginRequiredMixin,View):
+class ProfileViewProfile(AccessMixin,View):
     def get(self,request, pk):
         
         user = User.objects.get(id=pk)
@@ -332,4 +333,44 @@ class ProfileViewProfile(LoginRequiredMixin,View):
         }
         return render(request, 'users/partials/save-success.html', context)
 
+class UsersRegisterUser(View):
+    def get(self,request):
+        context = {
+           'next': 'core:index'
+        }
+        return render(request, 'users/register_user.html', context)
+
+    def post(self, request):
+        first_name = request.POST.get('first_name')
+        last_name =request.POST.get('last_name')
+        email = request.POST.get('email')
+        is_staff = False
+        uuid_str = uuid.uuid4()
+        try:
+            password_token = PasswordToken(name=first_name,last_name=last_name, email=email,is_staff=is_staff,token=uuid_str, token_life=5)
+            password_token.save()
+        except Exception as err:
+            messages.error(request, 'Error creating password token for new user: ' + str(err))
+            return redirect('users:users')
+
+        if password_token == None:
+            messages.error(request,'Error creating password token for new user.')
+            return redirect('core:index')
+            
+        url = 'http://127.0.0.1:8000/users/create-password/' + str(uuid_str) + '?email=' + escape(email) + '&name=' + escape(first_name)
+        html = """\
+        Congratulations, """ + first_name + """!   You're account has been created.  Now create some encrtyped secrets to share!
+
+        Please click the link below to activate your account and create a password.
+
+        <a href=""" + url + """ >Activate your account.</a>
+        """
+        #response = email_user(email, html)
+
+        #if response['result'] == 0:
+        #    messages.error('Error sending email: ' + str(response['message']))
+
+        #return redirect('core:index')
+        next_url = reverse('users:user_create_password', args=[password_token.token ] )  + '?email=' + escape(email) + '&name=' + escape(first_name)
+        return redirect(next_url)
         

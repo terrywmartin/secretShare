@@ -15,7 +15,7 @@
           <a class="nav-link {% if request.get_full_path == secret_url %} active {% endif%}" {% if request.get_full_path == secret_url %} aria-current="page"  {% endif %} href="{% url 'secrets:secrets' %}">Secrets</a></li>
       </li>
       {% endif %}
-      {% if user.is_authenticated %}
+      {% if user.is_authenticated and user.is_staff %}
       {% url 'users:users' as users_url %}
       <li class ="nav-item">
           <a class="nav-link {% if request.get_full_path == users_url %} active {% endif%}" {% if request.get_full_path == users_url %} aria-current="page"  {% endif %} href="{% url 'users:users' %}">Users</a></li>
@@ -65,6 +65,9 @@
             </ul>
           </li>
         {% else %}
+         <li class ="nav-item">
+            <a class="nav-link" href="{% url 'users:user_register' %}?next={% url 'core:index' %}">Register</a>
+          </li>
           <li class ="nav-item">
             <a class="nav-link" href="{% url 'login' %}?next={% url 'core:index' %}">Login</a>
           </li>

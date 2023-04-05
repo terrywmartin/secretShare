@@ -37,15 +37,26 @@ services:
     depends_on:
       - db
   nginx:
-    build: ./nginx
+    container_name: nginx
+    build: nginx
     ports:
-      - 1337:80
+      - 80:80
+      #- 443:443
+    restart: always
     volumes:
       - static_volumes:/staticfiles
+      #- certs:/var/www/certbot/
+      - html:/usr/share/nginx/html
+      - vhost:/etc/nginx/vhost.d
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     depends_on:
       - app
+
 volumes:
   postgres_data:
   static_volumes:
-  
+  certs:
+  html:
+  vhost:
+  acme:
   
