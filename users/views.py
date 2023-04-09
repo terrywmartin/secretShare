@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import QueryDict
-from django.shortcuts import redirect, render, reverse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views import View
 from django.contrib import messages
 from django.utils.html import escape

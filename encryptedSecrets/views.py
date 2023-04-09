@@ -1,6 +1,7 @@
 from distutils.log import Log
 from multiprocessing import sharedctypes
 from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,11 +16,14 @@ from users.models import User
 
 
 # Create your views here.
-class SecretsAddSecret(LoginRequiredMixin,View):
+class SecretsAddSecret(View):
     def get(self, request):
         form = SharedSecretForm()
-        profile = request.user.userprofile
-        settings = profile.usersetting
+        if request.user.is_authenticated:
+            profile = request.user.userprofile
+            settings = profile.usersetting
+        else:
+            settings = { "ttl": 1}
         context = {
             'secret': '',
             'next': 'secrets:secrets',
@@ -32,11 +36,20 @@ class SecretsAddSecret(LoginRequiredMixin,View):
         
         plain_secret = request.POST.get('secret')
         name = request.POST.get('name')
-        ttl = request.POST.get('ttl')
+        ttl = request.POST.get('ttl') if request.user.is_authenticated else 1
         sharedsecret = SharedSecret(name=name,text=plain_secret,ttl=ttl)
-        sharedsecret.owner = request.user
+
+        if request.user.is_authenticated:
+            sharedsecret.owner = request.user
+            redirect_url = 'encryptedSecrets:secrets'
+        else:
+            sharedsecret.owner = None
+            redirect_url = reverse('encryptedSecrets:secret_view' , args=[sharedsecret.id])
+            print(redirect_url)
+        
         sharedsecret.save()
-        return redirect('secrets:secrets')
+
+        return redirect(redirect_url)
 
 class SecretsViewSecret(View):
     def get(self,request, pk):
@@ -48,32 +61,12 @@ class SecretsViewSecret(View):
         msg = ''
     
         if not request.user.is_authenticated:
-            
-            accessed += 1
-            if sharedsecret.ttl - accessed <= 0:
-                sharedsecret.delete()
-                msg = 'The secret has been deleted'
-                message = msg
-            else:
-                sharedsecret.accessed = accessed
-                sharedsecret.save(update_fields=['accessed'])
-                message = 'Accessed secret: ' +  str(sharedsecret.ttl - accessed) + ' clicks left.'
-                name = sharedsecret.name
-            
-        if request.method == 'POST':
-            
-            if request.user.is_authenticated:
-                email = request.POST.get('email')
-                if email == "":
-                    return render(request, 'encryptedSecrets/partials/sent_failure.html')    
-                
-                response = email_secret(email, request.build_absolute_uri())
-                if response:
-                    return render(request, 'encryptedSecrets/partials/sent_success.html')
-                else:
-                    return render(request, 'encryptedSecrets/partials/sent_failure.html')    
+            ttl = 1
 
-        clicksLeft = sharedsecret.ttl - accessed
+        else:
+            ttl = sharedsecret.ttl
+
+        clicksLeft = ttl - accessed
         context = {
             'secret': sharedsecret,
             'next': 'secrets:secrets',
@@ -103,6 +96,41 @@ class SecretsViewSecret(View):
             else:
                 return render(request, 'encryptedSecrets/partials/sent_failure.html')    
 
+
+class SecretsShareSecret(View):
+    def get(self,request, pk):
+        try:
+            sharedsecret = SharedSecret.objects.get(id=pk)
+        except:
+            return render(request, 'encryptedSecrets/notfound.html')
+        accessed = sharedsecret.accessed
+        msg = ''
+        print(sharedsecret)
+        if not request.user.is_authenticated:
+            
+            accessed += 1
+            if sharedsecret.ttl - accessed <= 0:
+                #sharedsecret.delete()
+                SharedSecret.objects.filter(id=pk).delete()
+                msg = 'The secret has been deleted'
+                message = msg
+            else:
+                sharedsecret.accessed = accessed
+                sharedsecret.save(update_fields=['accessed'])
+                message = 'Accessed secret: ' +  str(sharedsecret.ttl - accessed) + ' clicks left.'
+                name = sharedsecret.name
+
+        print(sharedsecret)
+        clicksLeft = sharedsecret.ttl - accessed
+        context = {
+            'secret': sharedsecret,
+            'next': 'encryptedSecrets:secrets',
+            'page': 'share',
+            'msg': message,
+            'clicksLeft': clicksLeft
+        }
+    
+        return render(request, 'encryptedSecrets/view_secret.html', context)
 
 
 def email_secret(email, url):
