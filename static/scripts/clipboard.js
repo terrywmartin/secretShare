@@ -13,18 +13,21 @@ copyBtn.forEach(btn => btn.addEventListener('click', () => {
     //console.log(radioBtns[1].value, radioBtns[1].checked);
     const copyData = radioBtns[0].checked ? radioBtns[0].value : radioBtns[1].value;
     //console.log(copyData);
-
+    let copyTxt;
     if (copyData == "copy_url") {
-        const urlTxt = document.getElementsByName("URL");
-        secretText = urlTxt[0].value;
+        copyTxt = document.getElementsByName("URL");
+        copyTxt[0].select();
+        copyTxt[0].setSelectionRange(0, 99999);
+        
     }
     else {
-        const secretTxt = document.getElementsByName("secret");
-        secretText = secretTxt[0].value;
+        copyTxt = document.getElementsByName("secret");
+        copyTxt[0].select();
+        copyTxt[0].setSelectionRange(0, 99999);
     }
-    console.log(secretText)
+    console.log(copyTxt[0].value)
     
-    navigator.clipboard.writeText(secretText)
+    navigator.clipboard.writeText(copyTxt[0].value)
     navigator.clipboard.readText().then(() => {
         btn.textContent = 'Copied'
         setTimeout((btn) => {btn.textContent = 'Copy to clipboard'}, 3000, btn)
